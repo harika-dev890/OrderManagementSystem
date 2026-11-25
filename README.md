@@ -1,62 +1,67 @@
 # Order Management System
 
-A RESTful backend application built using **Java 17 and Spring Boot** to manage users, products, orders, and order items. The application implements secure authentication using JWT and role-based authorization to control access to protected resources.
+I developed this Order Management System using Java and Spring Boot to manage users, products, orders, and order items.
+
+The application provides REST APIs for different operations and uses Spring Security with JWT authentication and role-based authorization to secure the application.
 
 ## Technologies Used
 
-- **Language:** Java 17
-- **Framework:** Spring Boot, Spring MVC
-- **ORM:** Spring Data JPA, Hibernate
-- **Security:** Spring Security, JWT
-- **Database:** PostgreSQL
-- **Build Tool:** Maven
-- **API Testing:** Postman
+- Java 17
+- Spring Boot
+- Spring MVC
+- Spring Data JPA
+- Hibernate
+- Spring Security
+- JWT (JSON Web Token)
+- PostgreSQL
+- Maven
+- Postman
 
-## Key Features
+## Features
 
-### 1. Authentication and Security
-- User registration and login.
-- JWT generation after successful authentication.
-- Stateless authentication using JWT.
-- Password hashing using BCrypt.
-- Custom `UserDetails` implementation.
-- Role-based authorization using Spring Security.
-- Custom authentication entry point and access-denied handler.
+### 1. Authentication and Authorization
+- Implemented user registration and login functionality.
+- Integrated JWT-based authentication.
+- Used BCrypt password hashing for secure password storage.
+- Implemented stateless authentication.
+- Created a custom UserDetails implementation.
+- Configured role-based authorization using Spring Security.
+- Implemented custom authentication and access-denied handling.
 
 ### 2. User Management
-- User management REST APIs.
-- Role-based access permissions.
-- Secure handling of user authentication details.
+- Implemented APIs to manage user details.
+- Added role-based access permissions.
+- Integrated user authentication with Spring Security.
+- Used DTOs to transfer user data.
 
 ### 3. Product Management
-- REST APIs for product management.
-- Product-related operations protected through role-based authorization.
-- Product availability and stock management.
+- Implemented APIs for product management.
+- Added role-based access control for product operations.
+- Used DTOs to handle product requests and responses.
 
 ### 4. Order Management
-- Create and manage customer orders.
-- Associate orders with customers.
-- Manage multiple order items within an order.
-- Validate product availability and stock before processing orders.
-- Handle insufficient stock scenarios.
+- Implemented functionality to create and manage customer orders.
+- Associated orders with customers.
+- Managed order-related information.
+- Implemented authorization checks to restrict access to customer orders.
 
 ### 5. Order Item Management
-- Create order items associated with orders and products.
-- Retrieve, update, and delete order items.
-- Validate order item request data.
+- Implemented APIs to create and manage order items.
+- Associated order items with their respective orders and products.
+- Added functionality to retrieve, update, and delete order items.
 
 ### 6. Exception Handling and Validation
-- Centralized exception handling using `@RestControllerAdvice`.
-- Custom exceptions for application-specific errors.
-- Request validation using Jakarta Bean Validation.
-- Consistent API response structures.
+- Implemented centralized exception handling using `@RestControllerAdvice`.
+- Created custom exceptions for application-specific errors.
+- Used Jakarta Bean Validation to validate request data.
+- Implemented structured API responses.
 
 ### 7. Optimistic Locking
-- Uses optimistic locking to help prevent conflicting concurrent updates to shared data.
+- Implemented optimistic locking to handle concurrent updates and help prevent conflicting modifications to shared data.
 
 ## User Roles
 
-The application supports three roles:
+I implemented three roles in the application:
 
 | Role | Responsibility |
 |---|---|
@@ -64,36 +69,26 @@ The application supports three roles:
 | MANAGER | Management-related operations |
 | CUSTOMER | Customer-related operations |
 
-Access to protected resources is controlled through Spring Security role-based authorization.
+Access to application resources is controlled through Spring Security and role-based authorization.
 
-## Authentication Flow
+## JWT Authentication Flow
 
 1. A user registers or logs in using the authentication APIs.
 2. Spring Security authenticates the user credentials.
 3. The password is verified using BCrypt.
 4. A JWT token is generated after successful authentication.
-5. The client sends the token with subsequent requests.
-6. A custom JWT authentication filter validates the token and establishes the user's authentication context.
-7. Authorization rules determine whether the user can access the requested resource.
-
-## Order Workflow
-
-The application's main business workflow is:
-
-1. User registration and authentication.
-2. Product retrieval.
-3. Customer places an order.
-4. Order items are associated with the order and selected products.
-5. Product availability and stock are checked.
-6. Order-related operations are processed.
+5. The client sends the JWT token with subsequent requests.
+6. A custom JWT authentication filter validates the token.
+7. Spring Security establishes the authenticated user's security context.
+8. Access to protected resources is controlled through authorization rules.
 
 ## Database
 
-PostgreSQL is used as the relational database.
+I used PostgreSQL as the relational database.
 
-Spring Data JPA and Hibernate handle database operations and object-relational mapping.
+Spring Data JPA and Hibernate are used for database operations and object-relational mapping.
 
-The application contains entities representing:
+The application contains the following main entities:
 
 - User
 - Role
@@ -101,59 +96,36 @@ The application contains entities representing:
 - Order
 - OrderItem
 
-These entities represent the core relationships required for user, product, and order management.
+These entities represent the relationships required for user, product, and order management.
 
-## Project Structure
+## Project Architecture
 
-```text
-OrderManagementSystem/
-├── src/
-│   ├── main/
-│   │   ├── java/
-│   │   │   └── com/ty/OrderMangementSystem/
-│   │   │       ├── controller/
-│   │   │       ├── service/
-│   │   │       ├── repository/
-│   │   │       ├── entity/
-│   │   │       ├── dto/
-│   │   │       ├── security/
-│   │   │       ├── jwt/
-│   │   │       ├── Exception/
-│   │   │       └── util/
-│   │   └── resources/
-│   └── test/
-├── pom.xml
-├── mvnw
-├── mvnw.cmd
-└── README.md
-```
+I followed a layered architecture to organize the application:
 
-## Configuration
+- **Controller Layer:** Handles incoming REST API requests.
+- **Service Layer:** Contains business logic and application operations.
+- **Repository Layer:** Handles database operations using Spring Data JPA.
+- **Entity Layer:** Contains entity classes and their relationships.
+- **DTO Layer:** Transfers request and response data.
+- **Security Layer:** Handles authentication and authorization.
+- **JWT Layer:** Handles JWT authentication and token validation.
+- **Exception Layer:** Handles application-specific exceptions.
+- **Utility Layer:** Contains common response structures and utility classes.
 
-Configure the following environment variables before running the application:
-
-|   Variable    |            Description            |
-|---------------|-----------------------------------|
-| `DB_URL`      |    PostgreSQL database URL        |
-| `DB_USERNAME` |    Database username              |
-| `DB_PASSWORD` |     Database password             |
-| `JWT_SECRET`  |   Secret key used for JWT signing |
-
-Do not commit database credentials or JWT secrets to the repository.
-
-## How to Run
+## How to Run the Application
 
 1. Clone the repository.
 2. Create a PostgreSQL database.
-3. Configure the required environment variables.
+3. Configure the database connection and JWT secret.
 4. Import the project into Eclipse or another Java IDE.
 5. Build and run the Spring Boot application.
 6. Use Postman to test the REST APIs.
+7. Authenticate through the login API and use the generated JWT token to access protected endpoints.
 
 ## API Testing
 
-Postman can be used to test the application's REST APIs, including authentication, user management, product management, order management, and order item operations.
+I used Postman to test the REST APIs, including authentication, user management, product management, order management, and order item operations.
 
 ## Author
 
-**Java Backend Developer**
+Java Backend Developer
