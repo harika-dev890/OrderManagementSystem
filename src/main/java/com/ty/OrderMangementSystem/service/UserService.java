@@ -30,7 +30,7 @@ public class UserService {
 		User loggedInUser=userRepository.findByUsername(username).orElseThrow(()-> new UserNotFoundException("user name not found"));
 		User targetUser=userRepository.findById(userId).orElseThrow(()-> new UserNotFoundException("usernot found"));
 		if(loggedInUser.getRole()==Role.MANAGER) {
-			if(targetUser.getRole()==Role.MANAGER && targetUser.getUserId()!=loggedInUser.getUserId()) {
+			if(targetUser.getRole() == Role.MANAGER && !loggedInUser.getUserId().equals(targetUser.getUserId())) {
 				throw new AccessDeniedException("manager cannot fetch another manager");
 			}
 			if(targetUser.getRole()==Role.ADMIN) {
@@ -39,16 +39,15 @@ public class UserService {
 			
 		}
 		if(loggedInUser.getRole()==Role.CUSTOMER) {
-			if(loggedInUser.getUserId()!=targetUser.getUserId()) {
+			if(!loggedInUser.getUserId().equals(targetUser.getUserId())) {
 				throw new AccessDeniedException("customer cannot fetch another user details");
 			}
 		}
 		
-		User findUser=userRepository.findById(userId).orElseThrow(()-> new UserNotFoundException("usernot found"));
 		
 		ResponseStructure<User> responseStructure=new ResponseStructure<User>();
 		responseStructure.setMessage("user found");
-		responseStructure.setData(findUser);
+		responseStructure.setData(targetUser);
 		responseStructure.setStatusCode(HttpStatus.OK.value());
 		
 		return new ResponseEntity<ResponseStructure<User>>(responseStructure,HttpStatus.OK);
@@ -77,7 +76,7 @@ public class UserService {
 		User loggedInUser=userRepository.findByUsername(username).orElseThrow(()-> new UserNotFoundException("user name not found"));
 		User targetUser=userRepository.findById(userId).orElseThrow(()-> new UserNotFoundException("user not found"));
 		if(loggedInUser.getRole()==Role.MANAGER) {
-			if(targetUser.getRole()==Role.MANAGER && targetUser.getUserId()!=loggedInUser.getUserId()) {
+			if(targetUser.getRole() == Role.MANAGER && !loggedInUser.getUserId().equals(targetUser.getUserId())) {
 				throw new AccessDeniedException("manager cannot update another manager");
 			}
 			if(targetUser.getRole()==Role.ADMIN) {
@@ -86,7 +85,7 @@ public class UserService {
 			
 		}
 		if(loggedInUser.getRole()==Role.CUSTOMER) {
-			if(loggedInUser.getUserId()!=targetUser.getUserId()) {
+			if(!loggedInUser.getUserId().equals(targetUser.getUserId())) {
 				throw new AccessDeniedException("customer cannot update another user details");
 			}
 		}
@@ -94,7 +93,9 @@ public class UserService {
 		ResponseStructure<User> responseStructure=new ResponseStructure<User>();
 		targetUser.setUsername(user.getUsername());
 		targetUser.setEmail(user.getEmail());
-		targetUser.setPassword(passwordEncoder.encode((user.getPassword())));
+		if (user.getPassword() != null && !user.getPassword().isBlank()) {
+           targetUser.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
 		targetUser.setPhnoNo(user.getPhnoNo());
 		targetUser.setAddress(user.getAddress());
 		User updatedUser=userRepository.save(targetUser);
