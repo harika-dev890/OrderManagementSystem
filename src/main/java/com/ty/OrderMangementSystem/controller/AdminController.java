@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ty.OrderMangementSystem.dto.RegisterRequestDto;
-import com.ty.OrderMangementSystem.entity.User;
+import com.ty.OrderMangementSystem.dto.RegisterResponseDto;
 import com.ty.OrderMangementSystem.service.AuthenticationService;
 import com.ty.OrderMangementSystem.util.ResponseStructure;
 @RestController
@@ -20,13 +20,13 @@ public class AdminController {
 	 
 	@PreAuthorize("hasRole('ADMIN')")
 	 @PostMapping("/registerManager")
-		public ResponseEntity<ResponseStructure<User>> registerManager(@RequestBody RegisterRequestDto registerRequestDto){
+		public ResponseEntity<ResponseStructure<RegisterResponseDto>> registerManager(@RequestBody RegisterRequestDto registerRequestDto){
 			return authenticationService.registerManager(registerRequestDto);
 			
 		}
 	@PreAuthorize("hasRole('ADMIN')")
 	 @PostMapping("/registerAdmin")
-		public ResponseEntity<ResponseStructure<User>> registerAdmin(@RequestBody RegisterRequestDto registerRequestDto){
+		public ResponseEntity<ResponseStructure<RegisterResponseDto>> registerAdmin(@RequestBody RegisterRequestDto registerRequestDto){
 			return authenticationService.registerAdmin(registerRequestDto);
 			
 		}

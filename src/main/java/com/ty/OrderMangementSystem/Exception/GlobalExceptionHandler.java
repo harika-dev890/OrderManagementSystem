@@ -1,5 +1,6 @@
 package com.ty.OrderMangementSystem.Exception;
 
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -62,6 +63,16 @@ public class GlobalExceptionHandler {
 				null
 				);
 		
+	}
+	@ExceptionHandler(OptimisticLockingFailureException.class)
+	public ResponseEntity<ResponseStructure<String>> handleOptimisticLockingFailure(
+	        OptimisticLockingFailureException ex) {
+
+	    return ResponseUtil.buildResponse(
+	            HttpStatus.CONFLICT,
+	            "The data was modified by another request. Please try again.",
+	            null
+	    );
 	}
 	
 

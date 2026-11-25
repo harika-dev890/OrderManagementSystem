@@ -7,9 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,7 +28,7 @@ public class ProductController {
 	
 	@PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
 	@PostMapping
-	public ResponseEntity<ResponseStructure<ProductResponseDto>> addNewPRoduct( @Valid @RequestBody ProductDto productDto){
+	public ResponseEntity<ResponseStructure<ProductResponseDto>> addPRoduct( @Valid @RequestBody ProductDto productDto){
 		return productService.addProduct(productDto);
 	}
 	@GetMapping("/{productId}")
@@ -42,14 +42,14 @@ public class ProductController {
 			
 	}
 	@PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
-	@PutMapping("/{productId}")
-	public ResponseEntity<ResponseStructure<ProductResponseDto>> UpdateProductById(@PathVariable long productId, @Valid @RequestBody ProductDto productDto){
+	@PatchMapping("/{productId}")
+	public ResponseEntity<ResponseStructure<ProductResponseDto>> updateProductById(@PathVariable long productId, @Valid @RequestBody ProductDto productDto){
 		return productService.editProduct(productDto, productId);
 			
 	}
 	@PreAuthorize("hasRole('ADMIN')")
 	@DeleteMapping("/{productId}")
-	public ResponseEntity<ResponseStructure<ProductResponseDto>> deleteProductById(@PathVariable long productId){
+	public ResponseEntity<ResponseStructure<String>> deleteProductById(@PathVariable long productId){
      	return productService.deleteProductById(productId);
 			
 	}

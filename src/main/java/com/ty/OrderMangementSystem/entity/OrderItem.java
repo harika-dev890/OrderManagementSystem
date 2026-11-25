@@ -1,25 +1,36 @@
 package com.ty.OrderMangementSystem.entity;
 
+import java.math.BigDecimal;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
-@Data
+@Setter
+@Getter
 public class OrderItem {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long itemId;
+	@Column(nullable = false)
 	private int quantity;
-	private double price;
-	private double subTotal;
+	@Column(nullable = false, precision = 10, scale = 2)
+	private BigDecimal price;
+	@Column(nullable = false, precision = 10, scale = 2)
+	private BigDecimal subTotal;
 	
-	@ManyToOne
+	@ManyToOne(optional = false)
+	@JoinColumn(nullable = false)
 	private Order order;
-	@ManyToOne
+	@ManyToOne(optional = false)
+	@JoinColumn(nullable = false)
 	private Product product;
 	
 	

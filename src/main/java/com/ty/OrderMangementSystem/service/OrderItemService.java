@@ -1,5 +1,6 @@
 package com.ty.OrderMangementSystem.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ import com.ty.OrderMangementSystem.dto.OrderItemDto;
 import com.ty.OrderMangementSystem.dto.OrderItemResponseDto;
 import com.ty.OrderMangementSystem.entity.Order;
 import com.ty.OrderMangementSystem.entity.OrderItem;
+import com.ty.OrderMangementSystem.entity.OrderStatus;
 import com.ty.OrderMangementSystem.entity.Product;
 import com.ty.OrderMangementSystem.entity.Role;
 import com.ty.OrderMangementSystem.entity.User;
@@ -60,7 +62,10 @@ public class OrderItemService {
     		        throw new AccessDeniedException("cannot add item to another user's order");
     		    }
     		}
-		
+    		if (findOrder.getStatus() == OrderStatus.DELIVERED || findOrder.getStatus() == OrderStatus.CANCELLED) {
+
+    		    throw new IllegalArgumentException( "Cannot add items to a delivered or cancelled order");
+    		}
 		
 		OrderItem orderItem=new OrderItem();
 		if(findProduct.getStock()>=itemDto.getQuantity()) {
@@ -70,8 +75,8 @@ public class OrderItemService {
 			throw new InsufficientStockException("insufficient stock");
 		}
 		orderItem.setPrice(findProduct.getPrice());
-		orderItem.setSubTotal(itemDto.getQuantity()*findProduct.getPrice());
-		findOrder.setTotalAmount(findOrder.getTotalAmount() + orderItem.getSubTotal());
+		orderItem.setSubTotal(findProduct.getPrice().multiply(BigDecimal.valueOf(itemDto.getQuantity())));
+		findOrder.setTotalAmount(findOrder.getTotalAmount().add(orderItem.getSubTotal()));
 		orderItem.setProduct(findProduct);
 		orderItem.setOrder(findOrder);
 		
@@ -88,11 +93,7 @@ public class OrderItemService {
 		orderItemResponseDto.setQuantity(orderItem.getQuantity());
 		orderItemResponseDto.setTotalPrice(orderItem.getSubTotal());
 		
-		return ResponseUtil.buildResponse(HttpStatus.CREATED, "order item created", orderItemResponseDto);
-		
-		
-		
-		
+		return ResponseUtil.buildResponse(HttpStatus.CREATED, "order item created", orderItemResponseDto);	
 	}
      
      public ResponseEntity<ResponseStructure<OrderItemResponseDto>> findOrderItemById(long orderItemId){
@@ -105,8 +106,8 @@ public class OrderItemService {
  		
  		if(loggedInUser.getRole()==Role.CUSTOMER) {
 
- 		    if(existingOrderItem.getOrder().getUser().getUserId()!=loggedInUser.getUserId()) {
- 		        throw new AccessDeniedException("cannot view another items");
+ 		    if(loggedInUser.getUserId()!=existingOrderItem.getOrder().getUser().getUserId()) {
+ 		        throw new AccessDeniedException("You are not authorized to view this order item");
  		    }
  		    
  		}
@@ -123,9 +124,6 @@ public class OrderItemService {
      }
      public ResponseEntity<ResponseStructure<List<OrderItemResponseDto>>> findAllOrderItems(){
     	 List<OrderItem> existingOrderItem=orderItemRepository.findAll();
-    	 if(existingOrderItem.isEmpty()) {
-    		 throw new OrderItemNotFoundException("no item is present in order");
-    	 }
     	 List<OrderItemResponseDto> orderItemResponseDtos=existingOrderItem.stream()
     			                                                            .map((items)->
     			                                                            {
@@ -139,7 +137,7 @@ public class OrderItemService {
     			                                                            	return orderItemResponseDto;
     			                                                            }).toList();
     	 
-    	 return ResponseUtil.buildResponse(HttpStatus.OK, "items are persent in order", orderItemResponseDtos);
+    	 return ResponseUtil.buildResponse(HttpStatus.OK, "Order items retrieved successfully", orderItemResponseDtos);
      }
      @Transactional
      public ResponseEntity<ResponseStructure<OrderItemResponseDto>> updateOrderItem(long orderItemId,OrderItemDto itemDto){
@@ -151,7 +149,7 @@ public class OrderItemService {
 
  		User loggedInUser =
  		        userRepository.findByUsername(authentication.getName())
- 		        .orElseThrow();
+ 		        .orElseThrow(() -> new UserNotFoundException("user not found"));
 
 
  		if(loggedInUser.getRole()==Role.CUSTOMER) {
@@ -161,18 +159,19 @@ public class OrderItemService {
  		        "cannot update another user's order item");
  		    }
  		}
+ 		if (findOrder.getStatus() == OrderStatus.DELIVERED || findOrder.getStatus() == OrderStatus.CANCELLED) {
+		    throw new IllegalArgumentException( "Cannot update items in a delivered or cancelled order");
+		}
  		findProduct.setStock(findProduct.getStock()+existingOrderItem.getQuantity());
  		
  		if(findProduct.getStock()<itemDto.getQuantity()) {
     		 throw new InsufficientStockException("insufficient stock");
     	 } 
     	findProduct.setStock(findProduct.getStock()-itemDto.getQuantity());
-    	findOrder.setTotalAmount(findOrder.getTotalAmount()-existingOrderItem.getSubTotal());
+    	findOrder.setTotalAmount(findOrder.getTotalAmount().subtract(existingOrderItem.getSubTotal()));
     	existingOrderItem.setQuantity(itemDto.getQuantity());
-    	existingOrderItem.setPrice(findProduct.getPrice());
-    		 
-    	existingOrderItem.setSubTotal(itemDto.getQuantity()*findProduct.getPrice());
-    	findOrder.setTotalAmount(findOrder.getTotalAmount()+existingOrderItem.getSubTotal());
+    	existingOrderItem.setSubTotal(existingOrderItem.getPrice().multiply(BigDecimal.valueOf(itemDto.getQuantity())));
+    	findOrder.setTotalAmount(findOrder.getTotalAmount().add(existingOrderItem.getSubTotal()));
     	existingOrderItem.setProduct(findProduct);
     	existingOrderItem.setOrder(findOrder);
     	productRepository.save(findProduct);
@@ -181,6 +180,7 @@ public class OrderItemService {
     	OrderItem updatedOrderItem=orderItemRepository.save(existingOrderItem);
     	OrderItemResponseDto orderItemResponseDto=new OrderItemResponseDto();
     	orderItemResponseDto.setPrice(updatedOrderItem.getPrice());
+    	orderItemResponseDto.setItemId(updatedOrderItem.getItemId());
     	orderItemResponseDto.setProductId(updatedOrderItem.getProduct().getProductId());
     	orderItemResponseDto.setProductName(updatedOrderItem.getProduct().getName());
     	orderItemResponseDto.setQuantity(updatedOrderItem.getQuantity());
@@ -208,8 +208,11 @@ public class OrderItemService {
     		        throw new AccessDeniedException("cannot delete another user's order item");
     		    }
     		}
+    		if (order.getStatus() == OrderStatus.DELIVERED || order.getStatus() == OrderStatus.CANCELLED) {
+    		    throw new IllegalArgumentException( "Cannot delete items from a delivered or cancelled order");
+    		}
     	 product.setStock(product.getStock()+existingOrderItem.getQuantity());
-    	 order.setTotalAmount(order.getTotalAmount()-existingOrderItem.getSubTotal());
+    	 order.setTotalAmount(order.getTotalAmount().subtract(existingOrderItem.getSubTotal()));
     	 productRepository.save(product);
     	 orderRepository.save(order);
     	 orderItemRepository.deleteById(existingOrderItem.getItemId());
@@ -223,7 +226,7 @@ public class OrderItemService {
     	 orderItemResponseDto.setTotalPrice(existingOrderItem.getSubTotal());
     	 
     	 
-    	 return ResponseUtil.buildResponse(HttpStatus.OK, "item deleted in order", orderItemResponseDto);
+    	 return ResponseUtil.buildResponse(HttpStatus.OK, "Order item deleted successfully", orderItemResponseDto);
     	 
      }
 

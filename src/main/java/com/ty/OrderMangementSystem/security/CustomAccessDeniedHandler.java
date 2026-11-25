@@ -18,7 +18,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler{
 			AccessDeniedException accessDeniedException) throws IOException, ServletException {
 		response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 		response.setContentType("application/json");
-
+		 response.setCharacterEncoding("UTF-8");
         response.getWriter().write("""
         {
             "status":403,

@@ -1,5 +1,7 @@
 package com.ty.OrderMangementSystem.dto;
 
+import java.math.BigDecimal;
+
 import lombok.Data;
 
 @Data
@@ -8,7 +10,7 @@ public class OrderItemResponseDto {
 	    private long productId;
 	    private String productName;
 	    private int quantity;
-	    private double price;
-	    private double totalPrice;
+	    private BigDecimal price;
+	    private BigDecimal totalPrice;
 
 }

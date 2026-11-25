@@ -15,6 +15,7 @@ import com.ty.OrderMangementSystem.Repository.UserRepository;
 import com.ty.OrderMangementSystem.dto.LoginRequestDto;
 import com.ty.OrderMangementSystem.dto.LoginResponseDto;
 import com.ty.OrderMangementSystem.dto.RegisterRequestDto;
+import com.ty.OrderMangementSystem.dto.RegisterResponseDto;
 import com.ty.OrderMangementSystem.entity.Role;
 import com.ty.OrderMangementSystem.entity.User;
 import com.ty.OrderMangementSystem.jwt.JwtService;
@@ -33,7 +34,7 @@ public class AuthenticationService {
 	@Autowired
 	private JwtService jwtService;
 	
-	public ResponseEntity<ResponseStructure<User>> registerCustomer(RegisterRequestDto registerRequestDto){
+	public ResponseEntity<ResponseStructure<RegisterResponseDto>> registerCustomer(RegisterRequestDto registerRequestDto){
 		if(userRepository.findByUsername(registerRequestDto.getUsername()).isPresent()) {
 			throw new UserExistException("customer already present,please login");
 		}
@@ -44,11 +45,15 @@ public class AuthenticationService {
 		user.setEmail(registerRequestDto.getEmail());
 		user.setPassword(passwordEncoder.encode(registerRequestDto.getPassword()));
 		User register=userRepository.save(user);
+		RegisterResponseDto registerResponseDto=new RegisterResponseDto();
+		registerResponseDto.setUsername(register.getUsername());
+		registerResponseDto.setEmail(register.getEmail());
+		registerResponseDto.setRole(register.getRole());
 		
-		return ResponseUtil.buildResponse(HttpStatus.CREATED, "register successfully", register);
+		return ResponseUtil.buildResponse(HttpStatus.CREATED, "register successfully", registerResponseDto);
 		
 	}
-	public ResponseEntity<ResponseStructure<User>> registerAdmin(RegisterRequestDto registerRequestDto){
+	public ResponseEntity<ResponseStructure<RegisterResponseDto>> registerAdmin(RegisterRequestDto registerRequestDto){
 		if(userRepository.findByUsername(registerRequestDto.getUsername()).isPresent()) {
 			throw new UserExistException("Admin already present,please login");
 		}
@@ -59,11 +64,16 @@ public class AuthenticationService {
 		user.setEmail(registerRequestDto.getEmail());
 		user.setPassword(passwordEncoder.encode(registerRequestDto.getPassword()));
 		User register=userRepository.save(user);
+		RegisterResponseDto registerResponseDto=new RegisterResponseDto();
+		registerResponseDto.setUsername(register.getUsername());
+		registerResponseDto.setEmail(register.getEmail());
+		registerResponseDto.setRole(register.getRole());
 		
-		return ResponseUtil.buildResponse(HttpStatus.CREATED, "register successfully", register);
+		
+		return ResponseUtil.buildResponse(HttpStatus.CREATED, "register successfully", registerResponseDto);
 		
 	}
-	public ResponseEntity<ResponseStructure<User>> registerManager(RegisterRequestDto registerRequestDto){
+	public ResponseEntity<ResponseStructure<RegisterResponseDto>> registerManager(RegisterRequestDto registerRequestDto){
 		if(userRepository.findByUsername(registerRequestDto.getUsername()).isPresent()) {
 			throw new UserExistException("manager already present,please login");
 		}
@@ -74,8 +84,13 @@ public class AuthenticationService {
 		user.setEmail(registerRequestDto.getEmail());
 		user.setPassword(passwordEncoder.encode(registerRequestDto.getPassword()));
 		User register=userRepository.save(user);
+		RegisterResponseDto registerResponseDto=new RegisterResponseDto();
+		registerResponseDto.setUsername(register.getUsername());
+		registerResponseDto.setEmail(register.getEmail());
+		registerResponseDto.setRole(register.getRole());
 		
-		return ResponseUtil.buildResponse(HttpStatus.CREATED, "register successfully", register);
+		
+		return ResponseUtil.buildResponse(HttpStatus.CREATED, "register successfully", registerResponseDto);
 		
 	}
 	public ResponseEntity<ResponseStructure<LoginResponseDto>> loginUser(LoginRequestDto loginRequestDto){

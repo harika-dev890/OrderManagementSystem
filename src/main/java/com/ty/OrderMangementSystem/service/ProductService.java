@@ -35,6 +35,7 @@ public class ProductService {
 		productResponseDto.setPrice(newProduct.getPrice());
 		productResponseDto.setProductId(newProduct.getProductId());
 		productResponseDto.setStock(newProduct.getStock());
+		productResponseDto.setCategory(newProduct.getCategory());
 		return ResponseUtil.buildResponse(
 		        HttpStatus.CREATED,
 		        "Product created successfully",
@@ -49,6 +50,7 @@ public class ProductService {
 		productResponseDto.setPrice(findProduct.getPrice());
 		productResponseDto.setProductId(findProduct.getProductId());
 		productResponseDto.setStock(findProduct.getStock());
+		productResponseDto.setCategory(findProduct.getCategory());
 		
 		return ResponseUtil.buildResponse(
 				HttpStatus.OK,
@@ -57,9 +59,6 @@ public class ProductService {
 	}
 	public ResponseEntity<ResponseStructure<List<ProductResponseDto>>> findAllProducts(){
 		List<Product> allProducts=productRepository.findAll();
-		if (allProducts.isEmpty()) {
-		      throw new ProductNotFoundException("No products present");
-		}
 		List<ProductResponseDto> productResponseDtos=allProducts.stream()
 				                                                .map((items)->{
 				                                                	ProductResponseDto productResponseDto=new ProductResponseDto();
@@ -67,6 +66,7 @@ public class ProductService {
 				                                            		productResponseDto.setPrice(items.getPrice());
 				                                            		productResponseDto.setProductId(items.getProductId());
 				                                            		productResponseDto.setStock(items.getStock());
+				                                            		productResponseDto.setCategory(items.getCategory());
 				                                            		return productResponseDto;
 				                                                	
 				                                                }).toList();
@@ -75,39 +75,52 @@ public class ProductService {
 				"product found Successfully",
 				productResponseDtos );
 	}
-	public ResponseEntity<ResponseStructure<ProductResponseDto>> editProduct(ProductDto productRequest,long productId){
-		Product findProduct=productRepository.findById(productId).orElseThrow(()-> new ProductNotFoundException("product not found"));
-		
-		findProduct.setName(productRequest.getName());
-		findProduct.setPrice(productRequest.getPrice());
-		findProduct.setCategory(productRequest.getCategory());
-		findProduct.setStock(productRequest.getStock());
-		
-		Product updatedProduct=productRepository.save(findProduct);
-		ProductResponseDto productResponseDto=new ProductResponseDto();
-		productResponseDto.setName(updatedProduct.getName());
-		productResponseDto.setPrice(updatedProduct.getPrice());
-		productResponseDto.setProductId(updatedProduct.getProductId());
-		productResponseDto.setStock(updatedProduct.getStock());
-		return ResponseUtil.buildResponse(
-		        HttpStatus.OK,
-		        "Product updated successfully",
-		        productResponseDto);
-		
-	}
-	public ResponseEntity<ResponseStructure<ProductResponseDto>> deleteProductById(long productId) {
+
+    public ResponseEntity<ResponseStructure<ProductResponseDto>> editProduct(ProductDto productRequest, long productId) {
+    	Product findProduct = productRepository.findById(productId).orElseThrow(() -> new ProductNotFoundException("product not found"));
+        if (productRequest.getName() != null) {
+        	if (productRequest.getName().isBlank()) {
+        		throw new IllegalArgumentException("Product name cannot be blank");
+            }
+             findProduct.setName(productRequest.getName());
+        }
+        if (productRequest.getPrice() != null) {
+             findProduct.setPrice(productRequest.getPrice());
+        }
+
+        if (productRequest.getStock() != null) {
+           findProduct.setStock(productRequest.getStock());
+        }
+
+       if (productRequest.getCategory() != null) {
+           if (productRequest.getCategory().isBlank()) {
+               throw new IllegalArgumentException("Category cannot be blank");
+           }
+           findProduct.setCategory(productRequest.getCategory());
+       }
+       Product updatedProduct = productRepository.save(findProduct);
+       ProductResponseDto dto = new ProductResponseDto();
+        dto.setName(updatedProduct.getName());
+        dto.setPrice(updatedProduct.getPrice());
+        dto.setProductId(updatedProduct.getProductId());
+        dto.setStock(updatedProduct.getStock());
+        dto.setCategory(updatedProduct.getCategory());
+         return ResponseUtil.buildResponse(
+            HttpStatus.OK,
+            "Product updated successfully",
+            dto);
+      }
+
+	public ResponseEntity<ResponseStructure<String>> deleteProductById(long productId) {
 		Product findProduct=productRepository.findById(productId).orElseThrow(()-> new ProductNotFoundException("product not found"));
 		productRepository.deleteById(findProduct.getProductId());
-		ProductResponseDto productResponseDto=new ProductResponseDto();
-		productResponseDto.setName(findProduct.getName());
-		productResponseDto.setPrice(findProduct.getPrice());
-		productResponseDto.setProductId(findProduct.getProductId());
-		productResponseDto.setStock(findProduct.getStock());
+		
 		
 		return ResponseUtil.buildResponse(
 				HttpStatus.OK,
 				"product deleted Successfully",
-				productResponseDto );
+				 "Product deleted successfully"
+				 );
 	}
 	
 }

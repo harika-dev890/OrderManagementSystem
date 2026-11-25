@@ -1,5 +1,6 @@
 package com.ty.OrderMangementSystem.service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -38,12 +39,12 @@ public class OrderService {
 		String username = authentication.getName();
         User loggedInUser = userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("user not found"));
         if(loggedInUser.getRole()== Role.CUSTOMER) {
-        	if (!loggedInUser.getUserId().equals(orderDto.getUserId())) {
+        	if (loggedInUser.getUserId()!=orderDto.getUserId()) {
                 throw new AccessDeniedException("You can create orders only for yourself.");
         	}
         	
         }
-        User orderUser = userRepository.findById(orderDto.getUserId()).orElseThrow(()->new UserNotFoundException("Customer not found."));
+        User orderUser = userRepository.findById(orderDto.getUserId()).orElseThrow(()->new UserNotFoundException("Customer not found with the given ID."));
         if (orderUser.getRole() != Role.CUSTOMER) {
             throw new AccessDeniedException("Orders can only be created for customers.");
         }
@@ -53,7 +54,7 @@ public class OrderService {
 	    order.setUser(orderUser);
 	    order.setOrderDate(LocalDateTime.now());
 	    order.setStatus(OrderStatus.PENDING);
-	    order.setTotalAmount(0);
+	    order.setTotalAmount(BigDecimal.ZERO);
 	    Order savedOrder = orderRepository.save(order);
 	    OrderResponseDto orderResponseDto=new OrderResponseDto();
 	    orderResponseDto.setOrderId(savedOrder.getOrderId());
@@ -64,11 +65,7 @@ public class OrderService {
 
 	    
 
-	    return ResponseUtil.buildResponse(
-	            HttpStatus.CREATED,
-	            "Order created successfully",
-	            orderResponseDto
-	    );
+	    return ResponseUtil.buildResponse(HttpStatus.CREATED, "Order created successfully",orderResponseDto);
 		
 		
 	}
@@ -78,7 +75,7 @@ public class OrderService {
 		User loggedInUser=userRepository.findByUsername(username).orElseThrow(()-> new UserNotFoundException("user not found"));
 		Order findOrder=orderRepository.findById(orderId).orElseThrow(()->new OrderNotFoundException("order not found"));
 		if(loggedInUser.getRole()==Role.CUSTOMER) {
-			if(!findOrder.getUser().getUserId().equals(loggedInUser.getUserId())) {
+			if(loggedInUser.getUserId()!=findOrder.getUser().getUserId()) {
 				throw new AccessDeniedException("customer cannot fetch another users order");
 			}
 		}
@@ -96,9 +93,6 @@ public class OrderService {
 	
 	public ResponseEntity<ResponseStructure<List<OrderResponseDto>>> findOrders(){
 		List<Order> findOrders=orderRepository.findAll();
-		if(findOrders.isEmpty()) {
-			throw new OrderNotFoundException("no orders present");
-		}
 		List<OrderResponseDto> orderResponseDtos=findOrders.stream()
 				                                     .map(item->{
 				                                    	 OrderResponseDto dto=new OrderResponseDto();
@@ -120,20 +114,21 @@ public class OrderService {
 	public ResponseEntity<ResponseStructure<OrderResponseDto>> editOrderStatus(OrderStatusDto orderStatus,long orderId){
 		Order findOrder=orderRepository.findById(orderId).orElseThrow(()->new OrderNotFoundException("order not found"));
 
-		  
+		if (findOrder.getStatus() == OrderStatus.DELIVERED || findOrder.getStatus() == OrderStatus.CANCELLED) {
+	        throw new IllegalArgumentException("Cannot update an order that is already delivered or cancelled");
+	    }
 		   findOrder.setStatus(orderStatus.getStatus());
 		
 	
 		    Order savedOrder = orderRepository.save(findOrder);
 		    
-		    OrderResponseDto orderResponseDto=new OrderResponseDto();
-		    orderResponseDto.setStatus(savedOrder.getStatus());
+		    OrderResponseDto dto = new OrderResponseDto();
+		    dto.setOrderId(savedOrder.getOrderId());
+		    dto.setOrderDate(savedOrder.getOrderDate());
+		    dto.setTotalAmount(savedOrder.getTotalAmount());
+		    dto.setStatus(savedOrder.getStatus());
 
-		    return ResponseUtil.buildResponse(
-		            HttpStatus.OK,
-		            "Order updated successfully",
-		            orderResponseDto
-		    );
+		    return ResponseUtil.buildResponse(HttpStatus.OK,"Order updated successfully",dto);
 			
 			
 		}

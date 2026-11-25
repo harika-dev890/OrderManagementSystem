@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ty.OrderMangementSystem.dto.LoginRequestDto;
 import com.ty.OrderMangementSystem.dto.LoginResponseDto;
 import com.ty.OrderMangementSystem.dto.RegisterRequestDto;
-import com.ty.OrderMangementSystem.entity.User;
+import com.ty.OrderMangementSystem.dto.RegisterResponseDto;
 import com.ty.OrderMangementSystem.service.AuthenticationService;
 import com.ty.OrderMangementSystem.util.ResponseStructure;
 
@@ -22,7 +22,7 @@ public class AuthController {
 	@Autowired
 	private AuthenticationService authenticationService;
 	 @PostMapping("/registerCustomer")
-		public ResponseEntity<ResponseStructure<User>> registerUser(@RequestBody RegisterRequestDto registerRequestDto){
+		public ResponseEntity<ResponseStructure<RegisterResponseDto>> registerUser(@RequestBody RegisterRequestDto registerRequestDto){
 			return authenticationService.registerCustomer(registerRequestDto);
 			
 		}
