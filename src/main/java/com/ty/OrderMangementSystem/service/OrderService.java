@@ -43,7 +43,7 @@ public class OrderService {
         	}
         	
         }
-        User orderUser = userRepository.findById(orderDto.getUserId()).orElseThrow(()->new UserNotFoundException("Orders can only be created for customers."));
+        User orderUser = userRepository.findById(orderDto.getUserId()).orElseThrow(()->new UserNotFoundException("Customer not found."));
         if (orderUser.getRole() != Role.CUSTOMER) {
             throw new AccessDeniedException("Orders can only be created for customers.");
         }
