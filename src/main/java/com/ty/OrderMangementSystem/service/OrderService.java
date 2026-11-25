@@ -38,7 +38,7 @@ public class OrderService {
 		String username = authentication.getName();
         User loggedInUser = userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("user not found"));
         if(loggedInUser.getRole()== Role.CUSTOMER) {
-        	if (loggedInUser.getUserId() != orderDto.getUserId()) {
+        	if (!loggedInUser.getUserId().equals(orderDto.getUserId())) {
                 throw new AccessDeniedException("You can create orders only for yourself.");
         	}
         	
@@ -78,7 +78,7 @@ public class OrderService {
 		User loggedInUser=userRepository.findByUsername(username).orElseThrow(()-> new UserNotFoundException("user not found"));
 		Order findOrder=orderRepository.findById(orderId).orElseThrow(()->new OrderNotFoundException("order not found"));
 		if(loggedInUser.getRole()==Role.CUSTOMER) {
-			if(findOrder.getUser().getUserId()!=loggedInUser.getUserId()) {
+			if(!findOrder.getUser().getUserId().equals(loggedInUser.getUserId())) {
 				throw new AccessDeniedException("customer cannot fetch another users order");
 			}
 		}
