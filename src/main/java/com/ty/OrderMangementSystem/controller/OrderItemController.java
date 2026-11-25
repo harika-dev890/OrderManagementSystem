@@ -42,7 +42,7 @@ public class OrderItemController {
 			
 	}
 	@PutMapping("/{orderItemId}")
-	public ResponseEntity<ResponseStructure<OrderItemResponseDto>> UpdateOrderItemStatus(@PathVariable long orderItemId, @Valid @RequestBody OrderItemDto orderItemDto){
+	public ResponseEntity<ResponseStructure<OrderItemResponseDto>> UpdateOrderItem(@PathVariable long orderItemId, @Valid @RequestBody OrderItemDto orderItemDto){
 		return orderItemService.updateOrderItem(orderItemId, orderItemDto);
 			
 	}
