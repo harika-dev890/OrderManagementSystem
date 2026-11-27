@@ -13,8 +13,8 @@ import com.ty.OrderMangementSystem.dto.RegisterRequestDto;
 import com.ty.OrderMangementSystem.dto.RegisterResponseDto;
 import com.ty.OrderMangementSystem.service.AuthenticationService;
 import com.ty.OrderMangementSystem.util.ResponseStructure;
-
 import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -22,7 +22,7 @@ public class AuthController {
 	@Autowired
 	private AuthenticationService authenticationService;
 	 @PostMapping("/registerCustomer")
-		public ResponseEntity<ResponseStructure<RegisterResponseDto>> registerUser(@valid @RequestBody RegisterRequestDto registerRequestDto){
+		public ResponseEntity<ResponseStructure<RegisterResponseDto>> registerUser(@Valid @RequestBody RegisterRequestDto registerRequestDto){
 			return authenticationService.registerCustomer(registerRequestDto);
 			
 		}
