@@ -12,6 +12,7 @@ import com.ty.OrderMangementSystem.dto.RegisterRequestDto;
 import com.ty.OrderMangementSystem.dto.RegisterResponseDto;
 import com.ty.OrderMangementSystem.service.AuthenticationService;
 import com.ty.OrderMangementSystem.util.ResponseStructure;
+import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/admin")
 public class AdminController {
@@ -20,13 +21,13 @@ public class AdminController {
 	 
 	@PreAuthorize("hasRole('ADMIN')")
 	 @PostMapping("/registerManager")
-		public ResponseEntity<ResponseStructure<RegisterResponseDto>> registerManager(@valid @RequestBody RegisterRequestDto registerRequestDto){
+		public ResponseEntity<ResponseStructure<RegisterResponseDto>> registerManager(@Valid @RequestBody RegisterRequestDto registerRequestDto){
 			return authenticationService.registerManager(registerRequestDto);
 			
 		}
 	@PreAuthorize("hasRole('ADMIN')")
 	 @PostMapping("/registerAdmin")
-		public ResponseEntity<ResponseStructure<RegisterResponseDto>> registerAdmin(@valid @RequestBody RegisterRequestDto registerRequestDto){
+		public ResponseEntity<ResponseStructure<RegisterResponseDto>> registerAdmin(@Valid @RequestBody RegisterRequestDto registerRequestDto){
 			return authenticationService.registerAdmin(registerRequestDto);
 			
 		}
