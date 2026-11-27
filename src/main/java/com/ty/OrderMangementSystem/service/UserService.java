@@ -124,10 +124,6 @@ public class UserService {
 		if (user.getAddress() != null && !user.getAddress().isBlank()) {
 		    targetUser.setAddress(user.getAddress());
 		}
-
-		if (user.getPassword() != null && !user.getPassword().isBlank()) {
-		    targetUser.setPassword(passwordEncoder.encode(user.getPassword()));
-		}
 	    User updatedUser=userRepository.save(targetUser);
 	   UserResponseDto dto=new UserResponseDto();
 	   dto.setUserId(updatedUser.getUserId());
