@@ -20,13 +20,13 @@ public class AdminController {
 	 
 	@PreAuthorize("hasRole('ADMIN')")
 	 @PostMapping("/registerManager")
-		public ResponseEntity<ResponseStructure<RegisterResponseDto>> registerManager(@RequestBody RegisterRequestDto registerRequestDto){
+		public ResponseEntity<ResponseStructure<RegisterResponseDto>> registerManager(@valid @RequestBody RegisterRequestDto registerRequestDto){
 			return authenticationService.registerManager(registerRequestDto);
 			
 		}
 	@PreAuthorize("hasRole('ADMIN')")
 	 @PostMapping("/registerAdmin")
-		public ResponseEntity<ResponseStructure<RegisterResponseDto>> registerAdmin(@RequestBody RegisterRequestDto registerRequestDto){
+		public ResponseEntity<ResponseStructure<RegisterResponseDto>> registerAdmin(@valid @RequestBody RegisterRequestDto registerRequestDto){
 			return authenticationService.registerAdmin(registerRequestDto);
 			
 		}
